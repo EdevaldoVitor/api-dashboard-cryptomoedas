@@ -1,3 +1,4 @@
+
 package com.api.crypto.dashboard.repository;
 
 import com.api.crypto.dashboard.model.Coin;

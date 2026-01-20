@@ -1,9 +1,11 @@
 package com.api.crypto.dashboard.controller;
 
+import com.api.crypto.dashboard.dto.AiResumoFavoritosResponseDTO;
 import com.api.crypto.dashboard.model.Coin;
 import com.api.crypto.dashboard.model.User;
 import com.api.crypto.dashboard.repository.UserRepository;
 import com.api.crypto.dashboard.service.CoinService;
+import com.api.crypto.dashboard.service.OpenAIService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,9 +19,15 @@ public class CoinController {
 
     private final CoinService coinService;
     private final UserRepository userRepository;
+    private final OpenAIService openAIService;
 
-    public CoinController(CoinService coinService, UserRepository userRepository) {
+    public CoinController(
+            CoinService coinService,
+            OpenAIService openAIService,
+            UserRepository userRepository) {
+
         this.coinService = coinService;
+        this.openAIService = openAIService;
         this.userRepository = userRepository;
     }
 
@@ -52,5 +60,30 @@ public class CoinController {
         return ResponseEntity.ok(favorites);
     }
 
+    @GetMapping("/favorites/resume")
+    public ResponseEntity<AiResumoFavoritosResponseDTO> resumoFavoritos(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        User user = userRepository
+                .findByUserName(userDetails.getUsername())
+                .orElseThrow();
+
+        List<Coin> favoritos = coinService.getFavoriteCoins(user);
+
+        if (favoritos.isEmpty()) {
+            return ResponseEntity.ok(
+                    new AiResumoFavoritosResponseDTO(
+                            "Você ainda não possui moedas favoritas cadastradas.",
+                            0
+                    )
+            );
+        }
+
+        String resumo = openAIService.gerarResumoFavoritos(favoritos);
+
+        return ResponseEntity.ok(
+                new AiResumoFavoritosResponseDTO(resumo, favoritos.size())
+        );
+    }
 
 }

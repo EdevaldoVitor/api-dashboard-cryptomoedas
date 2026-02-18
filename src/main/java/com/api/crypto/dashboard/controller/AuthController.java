@@ -59,12 +59,13 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         }
         String encryptedPassword = new BCryptPasswordEncoder().encode(login.password());
-        User novoUsuario = new User(login.username(), encryptedPassword);
+        User novoUsuario = new User(login.name(), login.username(), encryptedPassword);
 
         this.repository.save(novoUsuario);
 
         Map<String, Object> response = new HashMap<>();
         response.put("id", novoUsuario.getId());
+        response.put("name", novoUsuario.getName());
         response.put("userName", novoUsuario.getUserName());
 
         return ResponseEntity.ok(response);

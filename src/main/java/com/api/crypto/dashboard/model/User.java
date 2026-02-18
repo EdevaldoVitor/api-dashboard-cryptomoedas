@@ -20,12 +20,14 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+    private String name;
     @Column(unique = true)
     private String userName;
     private String passWord;
 
-    public User(String username, String password) {
+    public User(String name, String username, String password) {
         this.userName = username;
         this.passWord = password;
+        this.name = name;
     }
 }

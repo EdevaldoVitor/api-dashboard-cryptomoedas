@@ -40,9 +40,10 @@ public class AuthController {
             var auth = authenticationManager.authenticate(authToken);
 
             SecurityUser securityUser = (SecurityUser) auth.getPrincipal();
+            var username = securityUser.getUsername();
             var token = tokenService.generateToken(securityUser.getUsername());
 
-            return ResponseEntity.ok(new LoginResponseDTO(token));
+            return ResponseEntity.ok(new LoginResponseDTO(username, token));
 
         } catch (AuthenticationException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário ou senha inválidos!");

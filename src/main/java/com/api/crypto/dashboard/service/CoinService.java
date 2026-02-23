@@ -35,4 +35,13 @@ public class CoinService {
     public List<Coin> getFavoriteCoins(User user) {
         return coinRepository.findByUser(user);
     }
+
+    public void deleteById(Long id) {
+
+        if (!coinRepository.existsById(String.valueOf(id))) {
+            throw new RuntimeException("Moeda não encontrada");
+        }
+
+        coinRepository.deleteById(String.valueOf(id));
+    }
 }

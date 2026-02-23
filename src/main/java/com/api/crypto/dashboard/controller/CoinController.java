@@ -50,14 +50,21 @@ public class CoinController {
     // Listar moedas favoritas do usuário
     @GetMapping("/favorites")
     public ResponseEntity<?> getFavorites(@AuthenticationPrincipal UserDetails userDetails) {
+
         User user = userRepository.findByUserName(userDetails.getUsername()).orElseThrow();
         List<Coin> favorites = coinService.getFavoriteCoins(user);
 
-        if (favorites.isEmpty()) {
-            return ResponseEntity.ok("Não foi encontrado moedas!");
-        }
-
         return ResponseEntity.ok(favorites);
+    }
+
+    // Remover moeda favorita
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteFavorite(@PathVariable Long id) {
+
+        coinService.deleteById(id);
+
+        return ResponseEntity.noContent().build();
+
     }
 
     @GetMapping("/favorites/resume")

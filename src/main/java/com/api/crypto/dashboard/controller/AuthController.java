@@ -34,23 +34,38 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Validated AuthDTO login) {
-        var authToken = new UsernamePasswordAuthenticationToken(login.username(), login.password());
+
+        var authToken = new UsernamePasswordAuthenticationToken(
+                login.username(),
+                login.password()
+        );
 
         try {
             var auth = authenticationManager.authenticate(authToken);
 
             SecurityUser securityUser = (SecurityUser) auth.getPrincipal();
-            var username = securityUser.getUsername();
-            var token = tokenService.generateToken(securityUser.getUsername());
 
-            return ResponseEntity.ok(new LoginResponseDTO(username, token));
+            String username = securityUser.getUsername();
+
+            User user = repository.findByUserName(username)
+                    .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+            String token = tokenService.generateToken(username);
+
+            return ResponseEntity.ok(
+                    new LoginResponseDTO(
+                            user.getFullName(),
+                            username,
+                            token
+                    )
+            );
 
         } catch (AuthenticationException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuário ou senha inválidos!");
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body("Usuário ou senha inválidos!");
         }
     }
-
-
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Validated RegisterDTO login) {
@@ -60,13 +75,13 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         }
         String encryptedPassword = new BCryptPasswordEncoder().encode(login.password());
-        User novoUsuario = new User(login.name(), login.username(), encryptedPassword);
+        User novoUsuario = new User(login.fullName(), login.username(), encryptedPassword);
 
         this.repository.save(novoUsuario);
 
         Map<String, Object> response = new HashMap<>();
         response.put("id", novoUsuario.getId());
-        response.put("name", novoUsuario.getName());
+        response.put("fullName", novoUsuario.getFullName());
         response.put("userName", novoUsuario.getUserName());
 
         return ResponseEntity.ok(response);

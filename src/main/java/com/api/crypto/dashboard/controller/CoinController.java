@@ -6,13 +6,24 @@ import com.api.crypto.dashboard.model.User;
 import com.api.crypto.dashboard.repository.UserRepository;
 import com.api.crypto.dashboard.service.CoinService;
 import com.api.crypto.dashboard.service.OpenAIService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+@Tag(name = "Coins", description = "Listagem de moedas e gerenciamento de favoritos")
+@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/coins")
 public class CoinController {
@@ -31,13 +42,19 @@ public class CoinController {
         this.userRepository = userRepository;
     }
 
-    // Buscar todas as moedas (da API externa)
+    @Operation(
+            summary = "Listar moedas do mercado",
+            description = "Busca a lista de criptomoedas da API externa (CoinGecko)."
+    )
     @GetMapping("/markets")
     public ResponseEntity<List<Object>> getAllCoins() {
         return ResponseEntity.ok(coinService.getAllCoinsFromAPI());
     }
 
-    // Salvar moeda favorita
+    @Operation(
+            summary = "Salvar moeda favorita",
+            description = "Adiciona uma moeda favorita para o usuário autenticado."
+    )
     @PostMapping("/favorite")
     public ResponseEntity<Coin> addFavorite(@RequestBody Coin coin,
                                             @AuthenticationPrincipal UserDetails userDetails) {
@@ -47,7 +64,10 @@ public class CoinController {
         return ResponseEntity.ok(saved);
     }
 
-    // Listar moedas favoritas do usuário
+    @Operation(
+            summary = "Listar moedas favoritas do usuário",
+            description = "Retorna a lista de moedas favoritas do usuário autenticado."
+    )
     @GetMapping("/favorites")
     public ResponseEntity<?> getFavorites(@AuthenticationPrincipal UserDetails userDetails) {
 
@@ -57,7 +77,10 @@ public class CoinController {
         return ResponseEntity.ok(favorites);
     }
 
-    // Remover moeda favorita
+    @Operation(
+            summary = "Remover moeda favorita",
+            description = "Remove uma moeda favorita do usuário autenticado."
+    )
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFavorite(@PathVariable Long id) {
 
@@ -67,6 +90,10 @@ public class CoinController {
 
     }
 
+    @Operation(
+            summary = "Resumo de IA das moedas favoritas",
+            description = "Retorna um resumo das moedas favoritas do usuário autenticado."
+    )
     @GetMapping("/favorites/resume")
     public ResponseEntity<AiResumoFavoritosResponseDTO> resumoFavoritos(
             @AuthenticationPrincipal UserDetails userDetails) {

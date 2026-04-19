@@ -7,6 +7,8 @@ import com.api.crypto.dashboard.model.User;
 import com.api.crypto.dashboard.repository.UserRepository;
 import com.api.crypto.dashboard.security.SecurityUser;
 import com.api.crypto.dashboard.service.TokenService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@Tag(name = "Auth", description = "Autenticação e registro de usuários")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -32,6 +35,10 @@ public class AuthController {
     private TokenService tokenService;
 
 
+    @Operation(
+            summary = "Login do usuário",
+            description = "Autentica com username e senha e retorna um token JWT."
+    )
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Validated AuthDTO login) {
 
@@ -67,6 +74,10 @@ public class AuthController {
         }
     }
 
+    @Operation(
+            summary = "Registro de novo usuário",
+            description = "Cria um novo usuário. Retorna 409 se o username já existir."
+    )
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody @Validated RegisterDTO login) {
         if (this.repository.findByUserName(login.username()).isPresent()) {

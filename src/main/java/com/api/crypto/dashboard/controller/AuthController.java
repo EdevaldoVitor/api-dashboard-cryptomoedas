@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Tag(name = "Auth", description = "Autenticação e registro de usuários")
 @RestController
@@ -96,6 +97,28 @@ public class AuthController {
         response.put("userName", novoUsuario.getUserName());
 
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> delete(@RequestParam String username) {
+        Optional<User> user = this.repository.findByUserName(username);
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado!");
+        }
+        this.repository.delete(user.get());
+        return ResponseEntity.ok("Usuário deletado com sucesso!");
+    }
+
+    @PostMapping("/alterar-senha")
+    public ResponseEntity<?> alterarSenha(@RequestParam String username, @RequestParam String novaSenha) {
+        Optional<User> user = this.repository.findByUserName(username);
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuário não encontrado!");
+        }
+        String encryptedPassword = new BCryptPasswordEncoder().encode(novaSenha);
+        user.get().setPassWord(encryptedPassword);
+        this.repository.save(user.get());
+        return ResponseEntity.ok("Senha alterada com sucesso!");
     }
 
 }

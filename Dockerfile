@@ -1,5 +1,9 @@
-FROM amazoncorretto:21-al2-jdk
-RUN mkdir /app
+FROM amazoncorretto:21
+
 WORKDIR /app
-COPY target/*.jar /app/cryptomoedas.jar
-CMD ["java", "-jar", "/app/cryptomoedas.jar"]
+
+COPY target/*.jar app.jar
+
+EXPOSE 8087
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-@Tag(name = "Coins", description = "Listagem de moedas e gerenciamento de favoritos")
+@Tag(name = "Coins", description = "Listagem de moedas e gerenciamento de favoritos do usuário")
 @SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/coins")
